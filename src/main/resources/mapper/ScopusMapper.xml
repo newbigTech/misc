@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.newbig.scopus.mapper.ScopusMapper">
+  <resultMap id="BaseResultMap" type="com.newbig.scopus.model.Scopus">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="first_name" jdbcType="VARCHAR" property="firstName" />
+    <result column="abbr" jdbcType="VARCHAR" property="abbr" />
+    <result column="last_name" jdbcType="VARCHAR" property="lastName" />
+    <result column="category" jdbcType="VARCHAR" property="category" />
+    <result column="primary_affiliation" jdbcType="VARCHAR" property="primaryAffiliation" />
+    <result column="country" jdbcType="VARCHAR" property="country" />
+    <result column="scopus_name" jdbcType="VARCHAR" property="scopusName" />
+    <result column="scopus_affiliation" jdbcType="VARCHAR" property="scopusAffiliation" />
+    <result column="scopus_hindex" jdbcType="VARCHAR" property="scopusHindex" />
+    <result column="scopus_author_id" jdbcType="VARCHAR" property="scopusAuthorId" />
+    <result column="scopus_scores" jdbcType="VARCHAR" property="scopusScores" />
+    <result column="gate_research_items" jdbcType="VARCHAR" property="gateResearchItems" />
+    <result column="gate_reads" jdbcType="VARCHAR" property="gateReads" />
+    <result column="gate_citations" jdbcType="VARCHAR" property="gateCitations" />
+    <result column="gate_rg_score" jdbcType="VARCHAR" property="gateRgScore" />
+    <result column="gate_hindex" jdbcType="VARCHAR" property="gateHindex" />
+    <result column="scopus_article_2016" jdbcType="VARCHAR" property="scopusArticle2016" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="s2013" jdbcType="VARCHAR" property="s2013" />
+    <result column="s2014" jdbcType="VARCHAR" property="s2014" />
+    <result column="s2015" jdbcType="VARCHAR" property="s2015" />
+    <result column="s2016" jdbcType="VARCHAR" property="s2016" />
+    <result column="s2017" jdbcType="VARCHAR" property="s2017" />
+    <result column="lt2013" jdbcType="VARCHAR" property="lt2013" />
+    <result column="subtotal" jdbcType="VARCHAR" property="subtotal" />
+    <result column="gt2017" jdbcType="VARCHAR" property="gt2017" />
+    <result column="total" jdbcType="BIGINT" property="total" />
+    <result column="scopus_url" jdbcType="VARCHAR" property="scopusUrl" />
+    <result column="s2013_before" jdbcType="VARCHAR" property="s2013Before" />
+    <result column="s2014_before" jdbcType="VARCHAR" property="s2014Before" />
+    <result column="s2015_before" jdbcType="VARCHAR" property="s2015Before" />
+    <result column="s2016_before" jdbcType="VARCHAR" property="s2016Before" />
+    <result column="s2017_before" jdbcType="VARCHAR" property="s2017Before" />
+    <result column="lt2013_before" jdbcType="VARCHAR" property="lt2013Before" />
+    <result column="subtotal_before" jdbcType="VARCHAR" property="subtotalBefore" />
+    <result column="gt2017_before" jdbcType="VARCHAR" property="gt2017Before" />
+    <result column="total_before" jdbcType="BIGINT" property="totalBefore" />
+    <result column="datetime" jdbcType="VARCHAR" property="datetime" />
+    <result column="scopus_article_2016_1" jdbcType="VARCHAR" property="scopusArticle20161" />
+    <result column="scopus_article_2016_2" jdbcType="VARCHAR" property="scopusArticle20162" />
+    <result column="scopus_scores_before" jdbcType="VARCHAR" property="scopusScoresBefore" />
+    <result column="check_result" jdbcType="INTEGER" property="checkResult" />
+    <result column="scopus_hindex_before" jdbcType="VARCHAR" property="scopusHindexBefore" />
+    <result column="gate_status" jdbcType="INTEGER" property="gateStatus" />
+    <result column="gate_author_home" jdbcType="VARCHAR" property="gateAuthorHome" />
+    <result column="gate_name" jdbcType="VARCHAR" property="gateName" />
+  </resultMap>
+</mapper>

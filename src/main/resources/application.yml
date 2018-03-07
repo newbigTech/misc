@@ -1,0 +1,65 @@
+server:
+  port: 8088
+  session:
+    timeout: 50000
+output:
+  ansi:
+    enabled: ALWAYS
+endpoints:
+  shutdown:
+    enabled: true
+logging:
+  level: ERROR
+spring:
+  profiles: dev
+  application:
+    name: app
+  http:
+    multipart:
+      enabled: true
+      max-file-size: 30Mb
+      max-request-size: 100Mb
+    encoding:
+      enabled: true
+      charset: UTF-8
+  mvc:
+    favicon:
+      enabled: false
+
+  aop:
+    auto: true
+    proxy-target-class: false
+  output:
+    ansi:
+        enabled: ALWAYS
+  mybatis:
+      type-aliases-package: tk.mybatis.springboot.model
+      mapper-locations: classpath:mapper/*.xml
+
+  mapper:
+      mappers:
+          - tk.mybatis.mapper.common.Mapper
+      not-empty: false
+      identity: MYSQL
+
+  pagehelper:
+      helperDialect: mysql
+      reasonable: true
+      supportMethodsArguments: true
+      params: count=countSql
+
+  datasource:
+    name: datasource
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/scopus?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=UTC
+    username: root
+    password:
+    hikari:
+      connection-test-query: SELECT 1
+      maximum-pool-size: 20
+
+---
+spring:
+  profiles:
+    active: dev
