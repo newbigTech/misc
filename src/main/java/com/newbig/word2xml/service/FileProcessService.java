@@ -1,6 +1,7 @@
 package com.newbig.word2xml.service;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.base.Utf8;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.newbig.word2xml.model.*;
@@ -35,7 +36,26 @@ public class FileProcessService {
     private static String authorEns = "";
     private static String afflicationCh = "";
     private static String afflicationEn = "";
-
+    static {
+        articleMeta.setPublisherId("zjdxxbgxb-51-5-841");
+        articleMeta.setArtAccessId("1008-973X(2017)05-0841-06");
+        articleMeta.setDoi("10.3785/j.issn.1008-973X.2017.05.001");
+        articleMeta.setOther("U443.38");
+        articleMeta.setSubject("=====");
+        articleMeta.setSubjectEn("=====");
+        DateType pubDate = new DateType(2018,10,10);
+        articleMeta.setPubDate(pubDate);
+        articleMeta.setReceivedDate(pubDate);
+        articleMeta.setVolume("1");
+        articleMeta.setIssue("1");
+        articleMeta.setFpage("9");
+        articleMeta.setLpage("10");
+        Permissions permissions = new Permissions("a","b","c");
+        articleMeta.setPermissions(permissions);
+        AwardGroup awardGroup = new AwardGroup("1","df","dfdf");
+        FundingGroup fundingGroup = new FundingGroup(Lists.newArrayList(awardGroup),"as");
+        articleMeta.setFundingGroup(fundingGroup);
+    }
     public static void main(String[] args) throws Exception {
 //        process("/Users/haibo/Downloads/docx/G151113W.htm");
 //        process("/Users/haibo/Downloads/docx/G160419W.htm");
@@ -50,8 +70,15 @@ public class FileProcessService {
         getTitleAndAuthorEn();
         getAfflications();//单位
         setContriGroupAndAfflication();
-        getReferences();
-        getPara();
+
+        Map<String,Object> dataMap = Maps.newHashMap();
+        dataMap.put("journalMeta",journalMeta);
+        dataMap.put("articleMeta",articleMeta);
+        FrontObjectToXmlUtil.createXmlFile("src/main/resources","front.xml","UTF8",dataMap);
+
+
+//        getReferences();
+//        getPara();
 //        getIntro();
 //        getFootNote();
     }
@@ -70,8 +97,8 @@ public class FileProcessService {
                         .split(",|，")
         );
         //单位
-        if ((afflicationCh.contains(";") || afflicationCh.contains("；"))
-                && (afflicationEn.contains(";") || afflicationEn.contains("；"))) {
+//        if ((afflicationCh.contains(";") || afflicationCh.contains("；"))
+//                && (afflicationEn.contains(";") || afflicationEn.contains("；"))) {
             List<String> affCh = Lists.newArrayList(
                     afflicationCh.replaceFirst("\\(", "")
                             .replaceFirst("\\)", "")
@@ -101,10 +128,10 @@ public class FileProcessService {
             if (chs.size() == ens.size()) {
                 for (int i = 0; i < chs.size(); i++) {
                     Contrib contrib = new Contrib();
-                    contrib.setGivenName(chs.get(i).substring(0, 1));
-                    contrib.setSurname(chs.get(i).substring(1, chs.get(i).length() - 1));
-                    contrib.setGivenNameEn(chs.get(i).split(" ")[0]);
-                    contrib.setSurnameEn(chs.get(i).split(" ")[1]);
+                    contrib.setGivenName(chs.get(i).trim().substring(0, 1).trim());
+                    contrib.setSurname(chs.get(i).trim().substring(1, chs.get(i).length()).trim());
+                    contrib.setGivenNameEn(ens.get(i).trim().split(" ")[0].trim());
+                    contrib.setSurnameEn(ens.get(i).trim().replaceFirst(contrib.getGivenNameEn(),"").trim());
                     if (affs.size() == 1) {
                         contrib.setAffIds(Lists.newArrayList("1"));
                     } else {
@@ -117,7 +144,7 @@ public class FileProcessService {
             }
             articleMeta.setContribGroup(contribs);
             articleMeta.setAffs(affs);
-        }
+//        }
     }
 
     private static void setJournalMeta() {
@@ -323,13 +350,13 @@ public class FileProcessService {
             if (StringUtil.isChineseOrEnglishOrDigit(t.substring(0, 1))) {
                 print("英文标题:" + mis.get(keywordChNum + 2));
                 print("英文作者:" + mis.get(keywordChNum + 3));
-                articleMeta.setArticleTitle( mis.get(keywordChNum + 2));
+                articleMeta.setTransTitle( mis.get(keywordChNum + 2));
                 authorEns =  mis.get(keywordChNum + 3);
                 authorEnNum = keywordChNum + 3;
             } else {
                 print("英文标题:" + mis.get(keywordChNum + 2) + "::" + mis.get(keywordChNum + 3));
                 print("英文作者:" + mis.get(keywordChNum + 4));
-                articleMeta.setArticleTitle( mis.get(keywordChNum + 2));
+                articleMeta.setTransTitle( mis.get(keywordChNum + 2));
                 authorEns =  mis.get(keywordChNum + 4);
                 authorEnNum = keywordChNum + 4;
             }
@@ -338,13 +365,13 @@ public class FileProcessService {
             if (StringUtil.isChineseOrEnglishOrDigit(t.substring(0, 1))) {
                 print("英文标题:" + mis.get(keywordChNum + 1));
                 print("英文作者:" + mis.get(keywordChNum + 2));
-                articleMeta.setArticleTitle( mis.get(keywordChNum + 1));
+                articleMeta.setTransTitle( mis.get(keywordChNum + 1));
                 authorEns =  mis.get(keywordChNum + 2);
                 authorEnNum = keywordChNum + 2;
             } else {
                 print("英文标题:" + mis.get(keywordChNum + 1) + "::" + mis.get(keywordChNum + 2));
                 print("英文作者:" + mis.get(keywordChNum + 3));
-                articleMeta.setArticleTitle( mis.get(keywordChNum + 1)+ " " + mis.get(keywordChNum + 2));
+                articleMeta.setTransTitle( mis.get(keywordChNum + 1)+ " " + mis.get(keywordChNum + 2));
                 authorEns =  mis.get(keywordChNum + 3);
                 authorEnNum = keywordChNum + 3;
             }
@@ -384,14 +411,14 @@ public class FileProcessService {
                     p2.startsWith("Key words"))) {
                 print("Abstract:" + p1);
                 print("Keywords:" + p2);
-                articleMeta.setAbstractCh(p1);
+                articleMeta.setAbstractEn(p1);
                 String[] kwdsCh = p2.replaceFirst("Keywords", "")
                         .replaceFirst("Key words", "")
                         .replaceFirst(":", "")
                         .replaceFirst("：", "")
                         .trim()
                         .split(";|；");
-                articleMeta.setKwdGroupCh(Lists.newArrayList(kwdsCh));
+                articleMeta.setKwdGroupEn(Lists.newArrayList(kwdsCh));
                 keywordEnNum = i + 1;
                 break;
             }

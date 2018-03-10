@@ -1,0 +1,130 @@
+<front>
+    <journal-meta>
+        <journal-id journal-id-type="publisher-id">${journalMeta.journalId}</journal-id>
+        <journal-title-group>
+            <journal-title>${journalMeta.journalTitle}</journal-title>
+            <journal-title xml:lang="en">${journalMeta.journalTitleEn}</journal-title>
+        </journal-title-group>
+        <issn pub-type="ppub">${journalMeta.issn}</issn>
+        <publisher>
+            <publisher-name>${journalMeta.publisherName}</publisher-name>
+            <publisher-loc>${journalMeta.publisherLoc}</publisher-loc>
+        </publisher>
+    </journal-meta>
+    <article-meta>
+        <article-id pub-id-type="publisher-id">${articleMeta.publisherId}</article-id>
+        <article-id pub-id-type="art-access-id">${articleMeta.artAccessId}</article-id>
+        <article-id pub-id-type="doi">${articleMeta.doi}</article-id>
+        <article-id pub-id-type="other">${articleMeta.other}</article-id>
+
+        <article-categories>
+            <subj-group subj-group-type="heading">
+                <subject>${articleMeta.subject}</subject>
+            </subj-group>
+            <subj-group subj-group-type="toc-heading" xml:lang="en">
+                <subject>${articleMeta.subjectEn}</subject>
+            </subj-group>
+        </article-categories>
+
+        <title-group>
+            <article-title>${articleMeta.articleTitle}</article-title>
+            <trans-title-group xml:lang="en">
+                <trans-title xml:lang="en">${articleMeta.transTitle}</trans-title>
+            </trans-title-group>
+        </title-group>
+        <contrib-group>
+            <#list articleMeta.contribGroup as c>
+            <contrib contrib-type="author">
+                <name-alternatives>
+                    <name name-style="eastern">
+                        <surname>${c.surname}</surname>
+                        <given-names>${c.givenName}</given-names>
+                    </name>
+                    <name name-style="western" xml:lang="en">
+                        <surname>${c.surnameEn}</surname>
+                        <given-names>${c.givenNameEn}</given-names>
+                    </name>
+                </name-alternatives>
+                <#if c.bio??>
+                <bio>
+                    <p><![CDATA[ ${c.bio}]]></p>
+                </bio>
+                <email>${c.email}</email>
+                </#if>
+                <#list c.affIds as affId>
+                    <xref ref-type="aff" rid="aff${affId}">${affId}</xref>
+                </#list>
+            </contrib>
+            </#list>
+        </contrib-group>
+        <#list articleMeta.affs as a>
+            <aff id="aff1">
+            <label>1</label>
+            <addr-line>南京理工大学 机械工程学院, 江苏 南京 210094</addr-line>
+            <addr-line xml:lang="en">School of Mechanical Engineering, Nanjing University of Science and Technology, Nanjing
+                210094, China
+            </addr-line>
+            </aff>
+        </#list>
+
+            <author-notes>
+                <corresp id="cor1">
+                    <![CDATA[王炅, 男, 教授. <br><a href="http://orcid.org/0000-0002-2721-9323" target=_blank style="letter-spacing:-0.5px;">orcid.org/0000-0002-2721-9323</a>. <br>E-mail: <a href="mailto:wjiongz@njust.edu.cn">wjiongz@njust.edu.cn</a>]]>
+                </corresp>
+            </author-notes>
+
+            <pub-date pub-type="ppub">
+                <day>${articleMeta.pubDate.day}</day>
+                <month>${articleMeta.pubDate.month}</month>
+                <year>${articleMeta.pubDate.year}</year>
+            </pub-date>
+
+            <volume>${articleMeta.volume}</volume>
+            <issue>${articleMeta.issue}</issue>
+            <fpage>${articleMeta.fpage}</fpage>
+            <lpage>${articleMeta.lpage}</lpage>
+
+            <history>
+            <date date-type="received">
+                <day>${articleMeta.receivedDate.day}</day>
+                <month>${articleMeta.receivedDate.month}</month>
+                <year>${articleMeta.receivedDate.year}</year>
+            </date>
+            </history>
+
+            <permissions>
+            <copyright-statement>${articleMeta.permissions.copyrightStatement}</copyright-statement>
+            <copyright-statement xml:lang="en">${articleMeta.permissions.copyrightStatementEn}</copyright-statement>
+            <copyright-year>${articleMeta.permissions.copyrightYear}</copyright-year>
+            </permissions>
+
+            <abstract>
+            <p>${articleMeta.abstractCh}</p>
+            </abstract>
+
+            <trans-abstract xml:lang="en">
+            <p>${articleMeta.abstractEn}</p>
+            </trans-abstract>
+
+            <kwd-group kwd-group-type="author-created">
+            <#list articleMeta.kwdGroupCh as kwdGroup>
+            <kwd>${kwdGroup}</kwd>
+            </#list>
+            </kwd-group>
+            <kwd-group kwd-group-type="author-created" xml:lang="en">
+            <#list articleMeta.kwdGroupEn as kwdGroup>
+            <kwd>${kwdGroup}</kwd>
+            </#list>
+            </kwd-group>
+
+            <funding-group>
+            <#list articleMeta.fundingGroup.awardGroups as ag>
+            <award-group>
+                <funding-source country="${ag.country}">${ag.fundingSource}</funding-source>
+                <award-id>${ag.awardId}</award-id>
+            </award-group>
+            </#list>
+            <funding-statement>${articleMeta.fundingGroup.fundingStatement}</funding-statement>
+            </funding-group>
+        </article-meta>
+        </front>
