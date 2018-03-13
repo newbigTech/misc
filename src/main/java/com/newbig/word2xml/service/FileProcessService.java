@@ -13,6 +13,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.*;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.newbig.word2xml.utils.Constants.*;
 
@@ -22,6 +24,8 @@ public class FileProcessService {
     private static Map<Integer, Map<Integer, String>> paraMap = Maps.newLinkedHashMap();
     private static ArticleMeta articleMeta = new ArticleMeta();
     private static JournalMeta journalMeta = new JournalMeta();
+    private static String firstAuthor;//一作
+    private static String comAuthor;//通讯作者
 
     private static Integer lineNum = 0;
     private static Integer keywordChNum;
@@ -43,25 +47,25 @@ public class FileProcessService {
         articleMeta.setOther("U443.38");
         articleMeta.setSubject("=====");
         articleMeta.setSubjectEn("=====");
-        DateType pubDate = new DateType(2018,10,10);
+        DateType pubDate = new DateType("2018","10","10");
         articleMeta.setPubDate(pubDate);
         articleMeta.setReceivedDate(pubDate);
         articleMeta.setVolume("1");
         articleMeta.setIssue("1");
         articleMeta.setFpage("9");
         articleMeta.setLpage("10");
-        Permissions permissions = new Permissions("a","b","c");
+        Permissions permissions = new Permissions("版权所有&#169;《浙江大学学报(工学版)》编辑部2017",
+                "Copyright &#169;2017 Journal of Zhejiang University (Engineering Science). All rights reserved.",
+                "2018");
         articleMeta.setPermissions(permissions);
-        AwardGroup awardGroup = new AwardGroup("1","df","dfdf");
-        FundingGroup fundingGroup = new FundingGroup(Lists.newArrayList(awardGroup),"as");
-        articleMeta.setFundingGroup(fundingGroup);
     }
     public static void main(String[] args) throws Exception {
 //        process("/Users/haibo/Downloads/docx/G151113W.htm");
 //        process("/Users/haibo/Downloads/docx/G160419W.htm");
 //        process("/Users/haibo/Downloads/docx/1G151196.htm");
-        process("G:\\HHMIndesign\\docx\\G160092-2.html");
-//        process("/Users/haibo/Downloads/html/G160322.html");
+//        process("G:\\HHMIndesign\\docx\\G160092-2.html");
+        process("/Users/haibo/Downloads/html/G160092-2.html");
+        setAwardGroup();
         //下面的顺序不能变,后面的会依赖前面的行号
         setJournalMeta();
         getTitleAndAuthorCh();
@@ -70,17 +74,78 @@ public class FileProcessService {
         getTitleAndAuthorEn();
         getAfflications();//单位
         setContriGroupAndAfflication();
-
         Map<String,Object> dataMap = Maps.newHashMap();
         dataMap.put("journalMeta",journalMeta);
         dataMap.put("articleMeta",articleMeta);
         FrontObjectToXmlUtil.createXmlFile("src/main/resources","front.xml","UTF8",dataMap);
+        getReferences();
+        FrontObjectToXmlUtil.createXmlFile("src/main/resources","refs.xml","UTF8",dataMap);
+        //
 
-
-//        getReferences();
 //        getPara();
 //        getIntro();
-//        getFootNote();
+    }
+
+    private static void setAwardGroup() {
+        for(int i=0;i<mis.size()-3;i++){
+            if(HtmlUtils.deleteAllHtmlTag(mis.get(i)).startsWith("收稿日期")&&
+                    HtmlUtils.deleteAllHtmlTag(mis.get(i+1)).startsWith("基金项目")&&
+                    HtmlUtils.deleteAllHtmlTag(mis.get(i+2)).startsWith("作者简介")&&
+                    HtmlUtils.deleteAllHtmlTag(mis.get(i+3)).startsWith("通信联系人")){
+                DateType receivedDate = new DateType();
+                String rdate = HtmlUtils.deleteAllHtmlTag(mis.get(i))
+                                        .replace("收稿日期","")
+                                        .replace(".","")
+                                        .replace(":","")
+                                        .replace("：","")
+                                        .trim();
+                if(StringUtil.isNotEmpty(rdate)){
+                    String[] ss = rdate.split("-");
+                    if(ss.length == 3){
+                        receivedDate = new DateType(ss[0],ss[1],ss[2]);
+                    }
+                }
+                articleMeta.setReceivedDate(receivedDate);
+                String fundingsm = HtmlUtils.deleteAllHtmlTag(mis.get(i+1))
+                        .replace("基金项目","")
+                        .replace(":","")
+                        .replace("：","")
+                        .trim();
+                FundingGroup fundingGroup = new FundingGroup();
+                fundingGroup.setFundingStatement(fundingsm);
+                String[] fs = fundingsm.split(";|；");
+                List<AwardGroup> awardGroups = Lists.newArrayList();
+                for(String f:fs){
+                    Pattern pattern = Pattern.compile(".*(\\(.*)\\)");
+                    Matcher matcher = pattern.matcher(f.trim());
+                    if(matcher.matches()){
+                        String s = matcher.group(1);
+                        String fundingSource = f.replace(s+")","").trim();
+                        String[] ss = s.replace("(","").split(",|，");
+                        for(String str:ss){
+                            AwardGroup awardGroup = new AwardGroup();
+                            awardGroup.setCountry("CN");
+                            awardGroup.setAwardId(str);
+                            awardGroup.setFundingSource(fundingSource);
+                            awardGroups.add(awardGroup);
+                        }
+                    }
+                }
+                fundingGroup.setAwardGroups(awardGroups);
+                articleMeta.setFundingGroup(fundingGroup);
+                firstAuthor = HtmlUtils.deleteAllHtmlTag(mis.get(i+2))
+                        .replace("作者简介","")
+                        .replaceFirst(":","")
+                        .replaceFirst("：","")
+                        .trim();
+                comAuthor = HtmlUtils.deleteAllHtmlTag(mis.get(i+3))
+                        .replace("通信联系人","")
+                        .replaceFirst(":","")
+                        .replaceFirst("：","")
+                        .trim();
+                break;
+            }
+        }
     }
 
     private static void setContriGroupAndAfflication() throws Exception {
@@ -124,7 +189,9 @@ public class FileProcessService {
                 aff.setAddrLineEn(affEn.get(i));
                 affs.add(aff);
             }
-            List<Contrib> contribs = Lists.newArrayList();
+        String authorName = firstAuthor.split("\\(|（")[0].trim();
+        String comName = comAuthor.split("，|,")[0].trim();
+        List<Contrib> contribs = Lists.newArrayList();
             if (chs.size() == ens.size()) {
                 for (int i = 0; i < chs.size(); i++) {
                     Contrib contrib = new Contrib();
@@ -132,6 +199,13 @@ public class FileProcessService {
                     contrib.setSurname(chs.get(i).trim().substring(1, chs.get(i).length()).trim());
                     contrib.setGivenNameEn(ens.get(i).trim().split(" ")[0].trim());
                     contrib.setSurnameEn(ens.get(i).trim().replaceFirst(contrib.getGivenNameEn(),"").trim());
+                    if(StringUtil.equals(chs.get(i).trim(),authorName)){
+                        contrib.setBio(firstAuthor);
+                        contrib.setEmail("");
+                    }
+                    if(StringUtil.equals(chs.get(i).trim(),comName)){
+                        contrib.setEmail("");
+                    }
                     if (affs.size() == 1) {
                         contrib.setAffIds(Lists.newArrayList("1"));
                     } else {
@@ -154,28 +228,6 @@ public class FileProcessService {
         journalMeta.setJournalTitleEn("Journal of Zhejiang University (Engineering Science)");
         journalMeta.setPublisherLoc("杭州市天目山路148号浙江大学西溪校区出版社406室");
         journalMeta.setPublisherName("浙江大学学报(工学版)编辑部");
-    }
-
-    private static void getFootNote() {
-        print(".........FootNote begin.......");
-        //一般在第一页，但也有可能会在其他页面
-        Boolean inFirstPage = false;
-        for (Integer i = keywordEnNum + 1; i < introBeginLineNum; i++) {
-            String footNote = HtmlUtils.deleteAllHtmlTag(mis.get(i));
-            if (StringUtils.isNotEmpty(footNote)) {
-                inFirstPage = true;
-                print(mis.get(i));
-            }
-        }
-        if (!inFirstPage) {
-            for (Integer i = introBeginLineNum; i < mis.size(); i++) {
-                String footNote = HtmlUtils.deleteAllHtmlTag(mis.get(i));
-                if (StringUtils.startsWithAny(footNote, "收稿日期", "基金项目", "作者简介", "通信联系人")) {
-                    print(mis.get(i));
-                }
-            }
-        }
-        print(".........FootNote end.........");
     }
 
     private static void getIntro() {
@@ -517,7 +569,7 @@ public class FileProcessService {
             }
             references.add(reference);
         }
-        print(JSON.toJSONString(references));
+        articleMeta.setReferences(references);
         print("参考文献结束 ");
     }
     public static ElementCitation buidCitation(String ref,boolean flag){
@@ -540,8 +592,10 @@ public class FileProcessService {
         ElementCitation citation = new ElementCitation();
         citation.setAnnotation(ref);
         citation.setPersonGroup(ln);
-        citation.setArticleTitle(ss1[1].replace(REF_J, "").trim());
-        String[] ss2 = ss1[2].split(",|，");
+        String at = ref.trim().replace(ss1[0],"")
+                                .replace(ss1[ss1.length-1],"").trim();
+        citation.setArticleTitle(at.replace(REF_J, "").trim());
+        String[] ss2 = ss1[ss1.length-1].split(",|，");
         citation.setSource(ss2[0]);
         citation.setYear(ss2[1]);
         String[] ss3 = ss2[2].split("\\(|:|：|-");
@@ -550,12 +604,15 @@ public class FileProcessService {
             citation.setIssue(ss3[1].replace(")", "")
                     .replace("）", "").trim());
             citation.setFpage(ss3[2].trim());
-            citation.setLPage(ss3[3].trim());
+            citation.setLpage(ss3[3].trim());
         }else{
             citation.setVolume(ss3[0].trim());
             citation.setFpage(ss3[1].trim());
-            citation.setLPage(ss3[2].trim());
+            citation.setLpage(ss3[2].trim());
+            citation.setIssue("");
         }
+        //TODO
+        citation.setUri("");
         return citation;
     }
     public static void print(String msg) {
@@ -584,6 +641,6 @@ public class FileProcessService {
 //            // TODO Auto-generated catch block
 //            e.printStackTrace();
 //        }
-        return "utf-8";
+        return "gb2312";
     }
 }

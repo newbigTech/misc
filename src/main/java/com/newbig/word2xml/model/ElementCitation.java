@@ -19,7 +19,7 @@ public class ElementCitation {
     private String volume;
     private String issue;
     private String fpage;
-    private String lPage;
+    private String lpage;
     private String uri;
     private String annotation;
 }

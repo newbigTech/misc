@@ -1,0 +1,60 @@
+<ref-list>
+    <title>References</title>
+    <#list articleMeta.references as r>
+    <ref id="b${r.label}">
+        <label>${r.label}</label>
+        <#if r.citationCh??>
+        <element-citation publication-type="journal">
+            <person-group person-group-type="author">
+                <#list r.citationCh.personGroup as p>
+                <name>
+                    <surname>${p.surname}</surname>
+                    <given-names>${p.givenName}</given-names>
+                </name>
+                </#list>
+            </person-group>
+            <article-title>${r.citationCh.articleTitle}</article-title>
+            <source>${r.citationCh.source}</source>
+            <year>${r.citationCh.year}</year>
+            <volume>${r.citationCh.volume}</volume>
+            <issue>${r.citationCh.issue}</issue>
+            <fpage>${r.citationCh.fpage}</fpage>
+            <lpage>${r.citationCh.lpage}</lpage>
+
+            <uri><![CDATA[${r.citationCh.uri}]]></uri>
+            <annotation>
+                <p>${r.citationCh.annotation}</p>
+            </annotation>
+        </element-citation>
+        </#if>
+        <#if r.citationEn??>
+        <element-citation publication-type="journal" xml:lang="en">
+            <person-group person-group-type="author">
+                <#list r.citationEn.personGroup as p>
+                    <name>
+                        <surname>${p.surname}</surname>
+                        <given-names>${p.givenName}</given-names>
+                    </name>
+                </#list>
+                <etal/>
+            </person-group>
+            <article-title>${r.citationEn.articleTitle}</article-title>
+            <source>${r.citationEn.source}</source>
+            <year>${r.citationEn.year}</year>
+            <volume>${r.citationEn.volume}</volume>
+            <issue>${r.citationEn.issue}</issue>
+            <fpage>${r.citationEn.fpage}</fpage>
+            <lpage>${r.citationEn.lpage}</lpage>
+            <uri><![CDATA[${r.citationEn.uri}]]></uri>
+            <annotation>
+                <p>${r.citationEn.annotation}</p>
+            </annotation>
+        </element-citation>
+        </#if>
+        <#if r.citationEn??>
+        </#if>
+        <#if r.citationEn??>
+        </#if>
+        </#list>
+   </ref>
+</ref-list>

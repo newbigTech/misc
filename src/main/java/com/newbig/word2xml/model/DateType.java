@@ -8,9 +8,14 @@ import lombok.Setter;
 @Setter
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
 public class DateType {
-    private Integer day;
-    private Integer month;
-    private Integer year;
+    private String year;
+    private String month;
+    private String day;
+
+    public DateType(){
+        this.year ="";
+        this.month="";
+        this.day ="";
+    }
 }
