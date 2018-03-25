@@ -82,8 +82,8 @@ public class FileProcessService {
         FrontObjectToXmlUtil.createXmlFile("src/main/resources","refs.xml","UTF8",dataMap);
         //
 
-//        getPara();
-//        getIntro();
+        getPara();
+        getIntro();
     }
 
     private static void setAwardGroup() {
@@ -526,6 +526,9 @@ public class FileProcessService {
                     if(!StringUtil.startsWithAny(pNext,"[")){
                         pj = pj+REF_SEPRATOR+pNext;
                     }
+                    if(pj.contains(".     ")){
+                        pj = pj.replace(".     ",REF_SEPRATOR);
+                    }
                     if(pj.startsWith("[")){
                         refs.add(pj);
                         print(pj);
@@ -546,6 +549,7 @@ public class FileProcessService {
             reference.setLabel(i+1+"");
             //有中文和英文
             ref = StringUtil.replace(ref,"["+(i+1)+"]","").trim();
+            ref = StringUtil.replace(ref,"["+(i+2)+"]","").trim();
             if(ref.contains(REF_J)) {
                 if (ref.contains(REF_SEPRATOR)) {
                     String[] ss0 = ref.split(REF_SEPRATOR);
@@ -577,6 +581,13 @@ public class FileProcessService {
         List<String> refAuthors = Lists.newArrayList(ss1[0].split(",|，"));
         List<Name> ln = Lists.newArrayList();
         for (String refAuthor : refAuthors) {
+            refAuthor = refAuthor.trim();
+            if(StringUtil.equals(refAuthor,"et al")){
+                continue;
+            }
+            if(StringUtil.equals(refAuthor,"等")){
+                continue;
+            }
             Name name = new Name();
             //TODO 姓名 后面要做统一处理
             if(flag) {
@@ -585,7 +596,7 @@ public class FileProcessService {
                 ln.add(name);
             }else{
                 name.setSurname(refAuthor.split(" ")[0]);
-                name.setGivenName(refAuthor.replace(name.getSurname()," ").trim());
+                name.setGivenName(refAuthor.replace(name.getSurname(),"").trim());
                 ln.add(name);
             }
         }
@@ -594,10 +605,14 @@ public class FileProcessService {
         citation.setPersonGroup(ln);
         String at = ref.trim().replace(ss1[0],"")
                                 .replace(ss1[ss1.length-1],"").trim();
+        at = StringUtil.replaceFirst(at,".","").trim();
+        at = StringUtil.reverse(at).trim();
+        at = StringUtil.replaceFirst(at,".","").trim();
+        at = StringUtil.reverse(at).trim();
         citation.setArticleTitle(at.replace(REF_J, "").trim());
         String[] ss2 = ss1[ss1.length-1].split(",|，");
-        citation.setSource(ss2[0]);
-        citation.setYear(ss2[1]);
+        citation.setSource(ss2[0].trim());
+        citation.setYear(ss2[1].trim());
         String[] ss3 = ss2[2].split("\\(|:|：|-");
         if(ss2[2].contains("(")){
             citation.setVolume(ss3[0].trim());
@@ -612,7 +627,7 @@ public class FileProcessService {
             citation.setIssue("");
         }
         //TODO
-        citation.setUri("");
+        citation.setUri("uri");
         return citation;
     }
     public static void print(String msg) {

@@ -240,7 +240,7 @@ public class StringUtil extends StringUtils {
                     if (StringUtil.isEmpty(t)) {
                         break;
                     }
-                    System.out.println(">>>> " + t);
+//                    System.out.println(">>>> " + t);
                     String figureNum = t.replace("图","").trim();
                     if(StringUtil.isNumeric(figureNum)){
                         String t1 = StringUtil.replace(t,t,XREF_FIG.replace("${name}",figureNum)
