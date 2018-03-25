@@ -9,6 +9,9 @@ import com.newbig.word2xml.utils.HtmlUtils;
 import com.newbig.word2xml.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.io.*;
 import java.util.List;
@@ -40,7 +43,11 @@ public class FileProcessService {
     private static String authorEns = "";
     private static String afflicationCh = "";
     private static String afflicationEn = "";
+    private static WebDriver driver;
     static {
+        System.setProperty("webdriver.chrome.driver", "D:\\MyPF\\chromedriver_win32\\chromedriver.exe");
+        ChromeOptions options = new ChromeOptions();
+        driver = new ChromeDriver(options);
         articleMeta.setPublisherId("zjdxxbgxb-51-5-841");
         articleMeta.setArtAccessId("1008-973X(2017)05-0841-06");
         articleMeta.setDoi("10.3785/j.issn.1008-973X.2017.05.001");
@@ -63,8 +70,8 @@ public class FileProcessService {
 //        process("/Users/haibo/Downloads/docx/G151113W.htm");
 //        process("/Users/haibo/Downloads/docx/G160419W.htm");
 //        process("/Users/haibo/Downloads/docx/1G151196.htm");
-//        process("G:\\HHMIndesign\\docx\\G160092-2.html");
-        process("/Users/haibo/Downloads/html/G160092-2.html");
+        process("G:\\HHMIndesign\\docx\\G160092-2.html");
+//        process("/Users/haibo/Downloads/html/G160092-2.html");
         setAwardGroup();
         //下面的顺序不能变,后面的会依赖前面的行号
         setJournalMeta();
@@ -553,13 +560,14 @@ public class FileProcessService {
             if(ref.contains(REF_J)) {
                 if (ref.contains(REF_SEPRATOR)) {
                     String[] ss0 = ref.split(REF_SEPRATOR);
-                    ElementCitation ch = buidCitation(ss0[0],true);
-                    ElementCitation en = buidCitation(ss0[1],false);
+                    ElementCitation ch = buidCitation(ss0[0],true,true);
+                    ElementCitation en = buidCitation(ss0[1],false,false);
+                    en.setUri(ch.getUri());
                     reference.setCitationCh(ch);
                     reference.setCitationEn(en);
                 }else{
                     //只有英文
-                    ElementCitation en = buidCitation(ref,false);
+                    ElementCitation en = buidCitation(ref,false,true);
                     reference.setCitationEn(en);
                 }
             }else{
@@ -576,7 +584,7 @@ public class FileProcessService {
         articleMeta.setReferences(references);
         print("参考文献结束 ");
     }
-    public static ElementCitation buidCitation(String ref,boolean flag){
+    public static ElementCitation buidCitation(String ref,boolean flag,Boolean needUri){
         String[] ss1 = ref.trim().split("\\.| // ");
         List<String> refAuthors = Lists.newArrayList(ss1[0].split(",|，"));
         List<Name> ln = Lists.newArrayList();
@@ -626,8 +634,25 @@ public class FileProcessService {
             citation.setLpage(ss3[2].trim());
             citation.setIssue("");
         }
-        //TODO
-        citation.setUri("uri");
+        String uri=null;
+        if(flag && needUri){
+            uri = RefUriService.getUriFromCnki(citation.getArticleTitle(),driver);
+        }
+        if((!flag) && needUri){
+            try {
+                if (citation.getSource().toLowerCase().contains("ieee")) {
+                    uri = RefUriService.getUriFromIEEE(citation.getArticleTitle(), driver);
+                } else {
+                    uri = RefUriService.getUriFromScienceDirect(citation.getArticleTitle(), driver);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+//            if(uri == null){
+//                uri = RefUriService.getUriFromGoole(citation.getArticleTitle(),driver);
+//            }
+        }
+        citation.setUri(uri);
         return citation;
     }
     public static void print(String msg) {
@@ -656,6 +681,6 @@ public class FileProcessService {
 //            // TODO Auto-generated catch block
 //            e.printStackTrace();
 //        }
-        return "gb2312";
+        return "UTF-8";
     }
 }
